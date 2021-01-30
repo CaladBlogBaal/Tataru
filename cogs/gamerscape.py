@@ -19,7 +19,7 @@ class GamerScape(commands.Cog):
     async def image_search(self, ctx, item, options):
 
         item = item.replace(" ", "_")
-        regex = rf"^{item}.*?{options.get('gender')}-?{options.get('race')}"
+        regex = rf"^{item}.*?{options.get('g')}-?{options.get('r')}"
         params = {"aisort": "name",
                   "action": "query",
                   "format": "json",
@@ -86,18 +86,19 @@ class GamerScape(commands.Cog):
         await self.image_search(ctx, item, options)
 
     @flags.add_flag("glam", nargs="+")
-    @flags.add_flag("--race", default="hyur")
-    @flags.add_flag("--gender", default="")
+    @flags.add_flag("--r", default="hyur")
+    @flags.add_flag("--g", default="")
     @gamerscape_image_search.group(cls=flags.FlagCommand)
     async def glam(self, ctx, **options):
         """retrieves images for glamour on gamerscape by filename
            with optional parameters for race and gender in flag notation
            file names are case sensitive
-           note you'll have to set the race for gender specific glamours
+           note you'll have to set the gender for gender specific glamours
+           and vice versa for race
            -------------------------------------------------------------
            tataru gis glam name
-           tataru gis glam name --race lalafell
-           tataru gis glam name" -race lalafell --gender female
+           tataru gis glam name --r lalafell
+           tataru gis glam name" -r lalafell --g female
         """
 
         item = " ".join(options["glam"])
