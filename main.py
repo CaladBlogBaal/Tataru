@@ -100,6 +100,11 @@ if __name__ == "__main__":
 
 
 @bot.command()
+async def source(ctx):
+    await ctx.send("https://github.com/CaladBlogBaal/Tataru")
+
+
+@bot.command()
 async def say(ctx, *, mesasage):
     """
     Echo a message
