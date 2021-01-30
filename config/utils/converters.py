@@ -66,7 +66,7 @@ class RaceConverter(commands.Converter):
     async def convert(self, ctx, argument):
 
         races = {"hyur": 1, "elezen": 2, "miqo'te": 3,
-                 "lalafell": 4, "roegadyn": 5, "Au Ra": 6,
+                 "lalafell": 4, "roegadyn": 5, "au ra": 6,
                  "viera": 7, "hrothgar": 8, "chocobo": 9,
                  "potato": 4, "lizard": 6, "bunny": 7,
                  "furry": 8, "lizzer": 6, "bunbun": 7,
