@@ -36,7 +36,7 @@ Sub Command and Aliases | Description | Usage
 `filters, f, filter` | Returns glamours based on flags (--r, --g, --j) | `tataru mirapi filters --r <4> --g <f> --j <war>`, `tataru mirapi filters --r <lalafell>`
 `search, s, se` |The main command for retrieving glamours on mirapi based on a keyword | `tataru mirapi search <keyword>`
 
-###search (command) ###
+### search (command) ###
 Sub Command and Aliases | Description | Usage
 ----------------|--------------|-------
 `filters, f, filter` | Returns glamours based on a keyword with optional flags (--r, --g, --j) | `tataru mirapi search filters <詩人らしく> --r <4> --g <f> --j <war>`, `tataru mirapi search filters --r <lalafell>`
