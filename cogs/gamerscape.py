@@ -126,9 +126,6 @@ class GamerScape(commands.Cog):
         entries = [result["name"] for result in results["query"]["allimages"]
                    if item.lower() in result["name"].lower()]
 
-        if not entries:
-            return await ctx.send(f":no_entry: | no images for {item} were found.")
-
         return entries
 
     @commands.is_owner()
