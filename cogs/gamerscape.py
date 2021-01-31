@@ -1,5 +1,8 @@
 import re
 import typing
+import asyncio
+
+from datetime import datetime
 
 import discord
 from discord.ext import commands, flags
@@ -16,10 +19,58 @@ class GamerScape(commands.Cog):
         self.url = "https://ffxiv.gamerescape.com/w/api.php"
         self.bot = bot
 
-    async def image_search(self, ctx, item, options):
+    async def start_menu_gs_source(self, ctx, item, options=None):
+        # to not toss a key error down the line
+        if options is None:
+            options = {"glam": False}
+
+        entries = await self.get_image_rows(ctx, item, options)
+
+        if entries == []:
+            return await ctx.send(f":no_entry: | search failed for {item}")
+
+        pages = ctx.menu(source=GSImageFindSource(entries), clear_reactions_after=True)
+        await pages.start(ctx)
+
+    async def start_menu_find_source(self, ctx, item):
+        entries = await self.get_image_names(ctx, item)
+
+        if entries == []:
+            return await ctx.send(f":no_entry: | search failed for {item}")
+
+        pages = ctx.menu(source=GamerScapeSource(item, entries), clear_reactions_after=True)
+        await pages.start(ctx)
+
+    async def get_image_rows(self, ctx, item, options):
+        await ctx.acquire()
 
         item = item.replace(" ", "_")
         regex = rf"^{item}.*?{options.get('g')}-?{options.get('r')}"
+        results = await ctx.db.fetch("SELECT * FROM gamerscape_images WHERE LOWER(name) like $1;", f"%{item.lower()}%")
+
+        if not results:
+            return await self.image_search(ctx, item, options, regex)
+
+        entries = [res for res in results
+                   if re.match(regex, res["name"], re.IGNORECASE)
+                   or options["glam"] is False]
+
+        return entries
+
+    async def get_image_names(self, ctx, item):
+        await ctx.acquire()
+
+        item = item.replace(" ", "_")
+        results = await ctx.db.fetch("SELECT name FROM gamerscape_images WHERE LOWER(name) like $1;", f"%{item.lower()}%")
+
+        if not results:
+            return await self.find_image_names(ctx, item)
+
+        entries = [res["name"] for res in results]
+        return entries
+
+    async def image_search(self, ctx, item, options, regex):
+
         params = {"aisort": "name",
                   "action": "query",
                   "format": "json",
@@ -34,15 +85,21 @@ class GamerScape(commands.Cog):
         for js in js["query"]["allimages"]:
 
             if re.match(regex, js["name"], re.IGNORECASE) or options["glam"] is False:
+                print(f"adding {js['name']}....")
+                # if it wasn't found in get_image_rows function it probably doesn't exist in the database
+                await ctx.db.execute(
+                    """INSERT INTO gamerscape_images 
+                       (title, name, url, description_url, description_short_url, timestamp) 
+                       VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT DO NOTHING""",
+                    js["title"], js["name"], js["url"],
+                    js["descriptionurl"], js["descriptionshorturl"],
+                    datetime.strptime(js["timestamp"], "%Y-%m-%dT%H:%M:%SZ"))
+
                 entries.append(js)
 
-        if entries == []:
-            return await ctx.send(f":no_entry: | search failed for {item}")
+        return entries
 
-        pages = ctx.menu(source=GSImageFindSource(entries), clear_reactions_after=True)
-        await pages.start(ctx)
-
-    async def find_image_names(self, ctx, model):
+    async def find_image_names(self, ctx, item):
 
         params = {
 
@@ -58,7 +115,7 @@ class GamerScape(commands.Cog):
 
             "aimime": "image/png",
 
-            "aifrom": model,
+            "aifrom": item,
 
             "ailimit": 60
 
@@ -67,13 +124,91 @@ class GamerScape(commands.Cog):
         results = await self.bot.fetch(self.url, params=params)
 
         entries = [result["name"] for result in results["query"]["allimages"]
-                   if model.lower() in result["name"].lower()]
+                   if item.lower() in result["name"].lower()]
 
         if not entries:
-            return await ctx.send(f":no_entry: | no images for {model} were found.")
+            return await ctx.send(f":no_entry: | no images for {item} were found.")
 
-        pages = ctx.menu(source=GamerScapeSource(model, entries), clear_reactions_after=True)
-        await pages.start(ctx)
+        return entries
+
+    @commands.is_owner()
+    @commands.command()
+    async def add_images(self, ctx, delay=5):
+        """add recently added or every image file's to the database on gamerscape"""
+        # note this will take some time
+
+        await ctx.acquire()
+        # getting the most recent date if the table is already populated to attempt to get files added after that date
+        timestamp_check = await ctx.db.fetchrow("SELECT MAX(timestamp) from gamerscape_images")
+        aicontinue = True
+
+        params = {
+
+                "aisort": "name",
+
+                "action": "query",
+
+                "format": "json",
+
+                "list": "allimages",
+
+                "aimime": "image/png",
+
+                # 500 is max for anonymous
+                "ailimit": 500
+
+            }
+        if timestamp_check:
+
+            params = {
+
+                "aisort": "timestamp",
+
+                "action": "query",
+
+                "format": "json",
+
+                "list": "allimages",
+
+                "aimime": "image/png",
+                # get recently added images
+                "aidir": "older",
+
+                # 500 is max for anonymous
+                "ailimit": 500
+
+            }
+
+        while aicontinue:
+            results = await self.bot.fetch(self.url, params=params)
+
+            try:
+                await asyncio.sleep(delay)
+
+                for js in results["query"]["allimages"]:
+
+                    if timestamp_check:
+                        if js["timestamp"] < timestamp_check["timestamp"]:
+                            return await ctx.send("> No more recent images available")
+
+                    print(f"adding {js['name']}....")
+                    await ctx.db.execute(
+                        """INSERT INTO gamerscape_images 
+                           (title, name, url, description_url, description_short_url) 
+                           VALUES ($1, $2, $3, $4, $5, $6) 
+                           ON CONFLICT DO UPDATE SET 
+                           description_url = $4, url = $3, timestamp = $6""",
+                        js["title"], js["name"], js["url"],
+                        js["descriptionurl"], js["descriptionshorturl"],
+                        datetime.strptime(js["timestamp"], "%Y-%m-%dT%H:%M:%SZ"))
+
+                aicontinue = results["continue"]["aicontinue"]
+                params["aicontinue"] = aicontinue
+            except KeyError:
+                # no more results available
+                aicontinue = ""
+        print("Finished.")
+        await ctx.send(f"> Finished adding images {ctx.author.mention}")
 
     @commands.group(invoke_without_command=True, aliases=["gis"])
     async def gamerscape_image_search(self, ctx, *, item):
@@ -82,8 +217,7 @@ class GamerScape(commands.Cog):
            -------------------------------------------------------------
            tataru gis image_name
         """
-        options = {"glam": False}
-        await self.image_search(ctx, item, options)
+        await self.start_menu_gs_source(ctx, item)
 
     @flags.add_flag("glam", nargs="+")
     @flags.add_flag("--r", default="hyur")
@@ -106,7 +240,7 @@ class GamerScape(commands.Cog):
         if not item.lower().startswith("model") and not item.lower().startswith("model-"):
             item = "Model-" + item
 
-        await self.image_search(ctx, item, options)
+        await self.start_menu_gs_source(ctx, item, options)
 
     @commands.command(aliases=["gif"])
     async def gamerscape_image_find(self, ctx, *, item):
@@ -115,7 +249,7 @@ class GamerScape(commands.Cog):
            -------------------------------------------------------------
            tataru gif image_name
         """
-        await self.find_image_names(ctx, item)
+        await self.start_menu_find_source(ctx, item)
 
     @commands.command(aliases=["gs"])
     async def gamerscape_search(self, ctx, amount: typing.Optional[int] = 10, *, query):
