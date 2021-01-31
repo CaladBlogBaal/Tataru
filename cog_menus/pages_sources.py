@@ -11,7 +11,7 @@ class SearchSource(menus.ListPageSource):
         embed = discord.Embed(title=f"Results - {len(self.entries)}",
                               color=0x00dcff)
         embed.description = "\n".join(entries)
-
+        embed.set_footer(text=f"page {menu.current_page + 1} /{self.get_max_pages()}")
         return embed
 
 
@@ -26,7 +26,7 @@ class ParseSource(menus.ListPageSource):
 
         # for entry in entries:
         #    embed.add_field(name=u"\u200B", value=entry[3])
-
+        embed.set_footer(text=f"page {menu.current_page + 1} /{self.get_max_pages()}")
         return embed
 
 
@@ -35,12 +35,13 @@ class GamerScapeSource(menus.ListPageSource):
         self.item = model
         super().__init__(data, per_page=10)
 
-    async def format_page(self, item, entries):
+    async def format_page(self, menu, entries):
         embed = discord.Embed(title=f"Image File names for `{self.item}`",
                               color=0x00dcff,
                               )
         embed.description = "\n".join(f"{name.replace('_', ' ')}" for name in entries)
         embed.description = "```\n" + embed.description + "\n```"
+        embed.set_footer(text=f"page {menu.current_page + 1} /{self.get_max_pages()}")
         return embed
 
 
@@ -48,10 +49,21 @@ class GSImageFindSource(menus.ListPageSource):
     def __init__(self, data):
         super().__init__(data, per_page=1)
 
+    @staticmethod
+    def get_url(entry, key):
+        try:
+
+            return entry[key]
+
+        except KeyError:
+
+            return entry["description_url"]
+
     async def format_page(self, menu, entry):
-        embed = discord.Embed(title=entry["title"], url=entry["descriptionurl"],
+        embed = discord.Embed(title=entry["title"], url=self.get_url(entry, "descriptionurl"),
                               color=0x00dcff, description=f"[{entry['name']}]({entry['url']})")
         embed.set_image(url=entry["url"])
+        embed.set_footer(text=f"page {menu.current_page + 1} /{self.get_max_pages()}")
         return embed
 
 
