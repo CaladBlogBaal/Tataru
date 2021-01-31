@@ -63,7 +63,20 @@ CREATE TABLE IF NOT EXISTS encounter (
 
 );
 
+CREATE TABLE IF NOT EXISTS gamerscape_images (
+    id serial PRIMARY KEY,
+    title text,
+    name text UNIQUE,
+    url text,
+    description_url text,
+    description_short_url text,
+    timestamp timestamp
+
+);
+
 INSERT INTO expansion (name, patch_number) values('ShB', 5.0) ON CONFLICT DO NOTHING;
 INSERT INTO expansion (name, patch_number) values('StB', 4.0) ON CONFLICT DO NOTHING;
 INSERT INTO expansion (name, patch_number) values('Hw', 3.0) ON CONFLICT DO NOTHING;
 INSERT INTO expansion (name, patch_number) values('ARR', 2.0) ON CONFLICT DO NOTHING;
+
+CREATE INDEX IF NOT EXISTS name_trgm_idx ON gamerscape_images USING GIN (name gin_trgm_ops);
