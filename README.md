@@ -99,7 +99,7 @@ Sub Command and Aliases | Description | Usage
    and place it in the config directory
    <br><br>
 6. Upon starting the bot by running the main.py file you will finally need to run the add_zones command to 
-   setup the fflogs cog
+   setup the fflogs cog, and run the add_images to setup the gamerscape cog.
 
 ## Requirements<br>
 * Python 3.6+
