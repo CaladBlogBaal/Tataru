@@ -4,7 +4,6 @@ import typing
 
 from bs4 import BeautifulSoup
 
-import discord
 from discord.ext import commands
 
 from config import config
@@ -117,6 +116,9 @@ class Fflogs(commands.Cog):
         seconds = (parse['duration'] / 1000) % 60
         seconds = round(seconds)
 
+        if seconds < 10:
+            seconds = f"0{seconds}"
+
         minutes = (parse['duration'] / (1000 * 60)) % 60
         minutes = round(int(minutes), 2)
 
@@ -168,10 +170,8 @@ class Fflogs(commands.Cog):
         pages = ctx.menu(source=ParseSource(entries), clear_reactions_after=True)
         await pages.start(ctx)
 
-
     @commands.group(invoke_without_command=True, aliases=["tl"])
-    async def tierlogs(self, ctx, trials: typing.Optional[bool] = None, *,
-                       character: typing.Optional[typing.Union[discord.User, str]] = None):
+    async def tierlogs(self, ctx, *, character: typing.Optional[typing.Union[discord.User, str]] = None):
         """Displays raid parses for the current expansion raid tier
            If you don't provide a Discord user or character parameters, your own saved character will be used.
            -------------------------------------------------------------
@@ -188,8 +188,7 @@ class Fflogs(commands.Cog):
         await self.embed_parses(ctx, parses)
 
     @tierlogs.group(aliases=["b"], invoke_without_command=True)
-    async def best(self, ctx, trials: typing.Optional[bool] = False, *,
-                   character: typing.Optional[typing.Union[discord.User, str]] = None):
+    async def best(self, ctx, *, character: typing.Optional[typing.Union[discord.User, str]] = None):
         """Displays best raid/trial parses for the current expansion's content
            Expansions StB/Hw/ShB or Shadowbringers/Heavensward/Stormblood
            If you don't provide a Discord user or character parameters, your own saved character will be used.
@@ -210,7 +209,6 @@ class Fflogs(commands.Cog):
         parses = self.best_parses_only(parses)
 
         await self.embed_parses(ctx, parses)
-
 
     @best.command(name="adps")
     async def actual_dps(self, ctx, trials: typing.Optional[bool] = False, *,
@@ -351,7 +349,6 @@ class Fflogs(commands.Cog):
 
         pages = ctx.menu(source=SearchSource(entries), clear_reactions_after=True)
         await pages.start(ctx)
-
 
     @commands.command()
     @commands.is_owner()
