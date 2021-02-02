@@ -19,10 +19,51 @@ class GamerScape(commands.Cog):
         self.url = "https://ffxiv.gamerescape.com/w/api.php"
         self.bot = bot
 
+    def validate_filters(self, split, options):
+
+        # ['model', 'ornate_exarchic_top_of_scouting', 'female', 'lalafell.png']
+        # ['ornate_exarchic_coat_of_healing_icon.png']
+
+        # the glam command was called if there's options
+        if options:
+            # we don't want to return an icons in that case
+            if "icon" in split[0]:
+                return False
+
+            gender = options["g"]
+            race = options["r"]
+            # has race and gender if the list is this long
+            # by default hyur is always passed for race
+
+            # ignore race and gender for none icons aka accessories
+            if len(split) == 2:
+                return True
+
+            if gender:
+                return gender == split[-2].lower() and race in split[-1]
+
+            return race in split[-1]
+        # glam command wasn't called so allow it to pass
+        return True
+
+    def validate_fecth(self, item, options, results):
+
+        entries = []
+        for res in results:
+            check = re.match(r"^(Model-.*)png$", res["name"], re.IGNORECASE)
+            name = check.group(0).lower() if check else res["name"].lower()
+
+            if item not in name:
+                continue
+
+            split = name.split("-")
+
+            if self.validate_filters(split, options):
+                entries.append(res)
+
+        return entries
+
     async def start_menu_gs_source(self, ctx, item, options=None):
-        # to not toss a key error down the line
-        if options is None:
-            options = {"glam": False}
 
         entries = await self.get_image_rows(ctx, item, options)
 
@@ -45,16 +86,14 @@ class GamerScape(commands.Cog):
         await ctx.acquire()
 
         item = item.replace(" ", "_")
-        regex = rf"^{item}.*?{options.get('g')}-?{options.get('r')}"
-        results = await ctx.db.fetch("SELECT * FROM gamerscape_images WHERE LOWER(name) like $1;", f"%{item.lower()}%")
+
+        results = await ctx.db.fetch("SELECT * FROM gamerscape_images WHERE LOWER(name) like $1;",
+                                     f"%{item.lower()}%")
 
         if not results:
-            return await self.image_search(ctx, item, options, regex)
+            return await self.image_search(ctx, item, options)
 
-        entries = [res for res in results
-                   if re.match(regex, res["name"], re.IGNORECASE)
-                   or options["glam"] is False]
-
+        entries = self.validate_fecth(item, options, results)
         return entries
 
     async def get_image_names(self, ctx, item):
@@ -69,7 +108,7 @@ class GamerScape(commands.Cog):
         entries = [res["name"] for res in results]
         return entries
 
-    async def image_search(self, ctx, item, options, regex):
+    async def image_search(self, ctx, item, options):
 
         params = {"aisort": "name",
                   "action": "query",
@@ -84,8 +123,16 @@ class GamerScape(commands.Cog):
 
         for js in js["query"]["allimages"]:
 
-            if re.match(regex, js["name"], re.IGNORECASE) or options["glam"] is False:
-                print(f"adding {js['name']}....")
+            check = re.match(r"^(Model-.*)png$", js["name"], re.IGNORECASE)
+            name = check.group(0).lower() if check else js["name"].lower()
+
+            if item not in name:
+                continue
+
+            split = name.split("-")
+
+            if self.validate_filters(split, options):
+                print(f"adding {name}....")
                 # if it wasn't found in get_image_rows function it probably doesn't exist in the database
                 await ctx.db.execute(
                     """INSERT INTO gamerscape_images 
@@ -214,6 +261,7 @@ class GamerScape(commands.Cog):
            -------------------------------------------------------------
            tataru gis image_name
         """
+        item = item.lower()
         await self.start_menu_gs_source(ctx, item)
 
     @flags.add_flag("glam", nargs="+")
@@ -225,17 +273,16 @@ class GamerScape(commands.Cog):
            with optional parameters for race and gender in flag notation
            file names are case sensitive
            note you'll have to set the gender for gender specific glamours
-           and vice versa for race
+           and vice versa for race, valid races are as found in the base game
+           and valid genders are only male/female
            -------------------------------------------------------------
            tataru gis glam name
            tataru gis glam name --r lalafell
            tataru gis glam name" -r lalafell --g female
         """
 
-        item = " ".join(options["glam"])
-
-        if not item.lower().startswith("model") and not item.lower().startswith("model-"):
-            item = "Model-" + item
+        item = " ".join(options["glam"]).lower().replace("model","").replace("model-", "")
+        del options["glam"]
 
         await self.start_menu_gs_source(ctx, item, options)
 
