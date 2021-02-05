@@ -232,15 +232,15 @@ class GamerScape(commands.Cog):
                 for js in results["query"]["allimages"]:
 
                     if timestamp_check:
-                        if js["timestamp"] < timestamp_check["timestamp"]:
+                        if datetime.strptime(js["timestamp"], "%Y-%m-%dT%H:%M:%SZ") < timestamp_check["max"]:
                             return await ctx.send("> No more recent images available")
 
                     print(f"adding {js['name']}....")
                     await ctx.db.execute(
                         """INSERT INTO gamerscape_images 
-                           (title, name, url, description_url, description_short_url) 
+                           (title, name, url, description_url, description_short_url, timestamp) 
                            VALUES ($1, $2, $3, $4, $5, $6) 
-                           ON CONFLICT DO UPDATE SET 
+                           ON CONFLICT (name) DO UPDATE SET 
                            description_url = $4, url = $3, timestamp = $6""",
                         js["title"], js["name"], js["url"],
                         js["descriptionurl"], js["descriptionshorturl"],
@@ -326,7 +326,7 @@ class GamerScape(commands.Cog):
                     entries.append(embed)
 
         if entries == []:
-            await ctx.send(f":no_entry: | search failed for {query}")
+            return await ctx.send(f":no_entry: | search failed for {query}")
 
         pages = ctx.menu(source=GSSearch(entries), clear_reactions_after=True)
         await pages.start(ctx)
