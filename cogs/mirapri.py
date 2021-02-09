@@ -241,7 +241,7 @@ class Mirapi(commands.Cog):
         """
 
         await self.convert_flags(ctx, options)
-        options["keyword"] = " ".join(options["query"])
+        options["keyword"] = " ".join(options["keyword"])
         options["page"] = 1
         await ctx.trigger_typing()
         await self.search_mirapi(ctx, options)
