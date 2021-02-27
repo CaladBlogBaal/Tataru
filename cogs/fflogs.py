@@ -108,7 +108,7 @@ class Fflogs(commands.Cog):
             raise commands.BadArgument(result.decode("utf-8"))
 
         if not result:
-            raise commands.BadArgument(f"> No parses were found for the **character** \"{name}\" "
+            raise commands.BadArgument(f"No parses were found for the **character** \"{name}\" "
                                        f"for world **{character['world']}**.")
         return result
 
@@ -230,10 +230,10 @@ class Fflogs(commands.Cog):
            encounter acronyms are also accepted valid ones are (e1-x,o1-x,a1-x)
            eg. tataru e6s or tataru e6n or tataru e6, with a savage check
            -------------------------------------------------------------
-           tataru "encounter name"
-           tataru y "encounter name"
-           tataru "encounter name" @User or user_id or name
-           tataru "encounter name" World Forename Surname
+           tataru el "encounter name"
+           tataru el y "encounter name"
+           tataru el "encounter name" @User or user_id or name
+           tataru el "encounter name" World Forename Surname
         """
         parses = []
         data = await ctx.db.fetch("""Select id, zone_id from encounter 
@@ -274,7 +274,7 @@ class Fflogs(commands.Cog):
                 expansion_name = await ctx.db.fetchval("SELECT name from expansion where patch_number = $1", min_b)
 
                 await ctx.db.execute("""INSERT INTO bracket (min, expansion_name, max) VALUES ($1,$2,$3) 
-                                        ON CONFLICT DO NOTHING""", min_b, max_b)
+                                        ON CONFLICT DO NOTHING""", min_b, expansion_name, max_b)
 
                 await ctx.db.execute("""INSERT INTO "zone" (id,name,frozen,expansion_name) values ($1,$2,$3,$4)
                                         ON CONFLICT DO NOTHING""",
