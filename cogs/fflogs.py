@@ -1,6 +1,7 @@
 import re
 import itertools
 import typing
+import difflib
 
 from bs4 import BeautifulSoup
 
@@ -163,6 +164,8 @@ class Fflogs(commands.Cog):
         title = f"{parses[0]['characterName']} of {parses[0]['server']}"
 
         entries = []
+        # ordering by job
+        parses.sort(key=lambda p: p["spec"], reverse=True)
 
         for parse in parses:
             entries.append((title, url, zone_name, await self.embed_parses_build_description(parse)))
@@ -241,6 +244,12 @@ class Fflogs(commands.Cog):
                                   name.lower() + "%")
 
         if not data:
+            encounter_names = await ctx.db.fetch("SELECT name from encounter")
+            words = difflib.get_close_matches(name, (e["name"] for e in encounter_names))
+
+            if words:
+                return await ctx.send(f"> search failed for \"{name}\"\n Did you mean.... \n{','.join(words)}?")
+
             return await ctx.send(f"> search failed for \"{name}\"")
 
         character = await CharacterAndWorldConverter().convert(ctx, character)
@@ -252,7 +261,7 @@ class Fflogs(commands.Cog):
         if savage_only:
             self.filter_out_logs(parses, 100)
             if parses == []:
-                return await ctx.send(f"> you only have nomal mode logs for encounter `{name}`")
+                return await ctx.send(f"> you only have normal mode logs for encounter `{name}`")
 
         await self.embed_parses(ctx, parses)
 
