@@ -4,3 +4,5 @@ __credentials__ = "postgres://postgres:DatabasePassword@HostIPAdress/DatabaseNam
 __fflogs_api_key__ = "api key here"
 __xivapikey__ = "api key here"
 __prefixes__ = ["stuff",  "blank ", "dab "]
+IMAGE_ROOT = "/var/www/img/"
+DOMAIN_NAME = "http://samplename"

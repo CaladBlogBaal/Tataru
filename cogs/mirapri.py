@@ -290,9 +290,10 @@ class Mirapi(commands.Cog):
         """
 
         s = "> For **--j** acceptable arguments are the **job names** or **acronyms** "
-        s += "as found in game and **job id** as found on mirapi eg. war, warrior, 10"
+        s += "as found in game and **job id** as found on mirapi eg. war, warrior, 10."
         s += "\n> For **--r** acceptable arguments are the **race names** "
-        s += "as found in game and race id as found on mirapi eg. lalafell, 4 with some race nicknames like potato"
+        s += "as found in game and race id as found on mirapi eg. lalafell, 4. with some race nicknames like potato "
+        s += "for races like au ra and miqo'te will need to be encased in \" \" or you can call them as miqote and aura"
         s += "\n> For **--g** acceptable arguments are **male, female, m, f** and **0** for male and **1** for female"
 
         await ctx.send(s)

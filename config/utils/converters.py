@@ -33,7 +33,7 @@ class CharacterAndWorldConverter(commands.Converter):
             args = argument.split(" ")
 
             if len(args) < 3 and len(args) != 2:
-                raise commands.BadArgument(error[len(args)]+" is a required argument that is missing.")
+                raise commands.BadArgument(error[len(args)] + " is a required argument that is missing.")
 
             check = await ctx.db.fetchval("SELECT name from world where LOWER(name) like $1", args[0].lower())
 
@@ -45,6 +45,20 @@ class CharacterAndWorldConverter(commands.Converter):
                     "second_name": args[2].lower().capitalize()}
 
         return await DiscordToCharacterConverter().convert(ctx, argument)
+
+
+def check_argument_against_alias_dict(argument, _dict, error_msg):
+
+    if not argument:
+        return argument
+
+    argument = argument.lower()
+
+    for k, v in _dict.items():
+        if argument in v or argument == k:
+            return k
+
+    raise commands.BadArgument(error_msg)
 
 
 def check_argument_against_dict(argument, _dict, error_msg):
@@ -62,9 +76,30 @@ def check_argument_against_dict(argument, _dict, error_msg):
     raise commands.BadArgument(error_msg)
 
 
-class RaceConverter(commands.Converter):
+class GenderAliasesConverter(commands.Converter):
+    async def convert(self, ctx, argument):
+        genders = {"male": ["m"], "female": ["f"]}
+        return check_argument_against_alias_dict(argument, genders, "invalid gender was passed.")
+
+
+class RaceAliasesConverter(commands.Converter):
     async def convert(self, ctx, argument):
 
+        races = {"lalafell": ["potato", "drawf", "lal"],
+                 "aura": ["lizzer", "lizzard", "liz", "au ra"],
+                 "hyur": ["hume", "thighlander"],
+                 "hrothgar": ["furry", "ronso"],
+                 "elezen": ["elf", "giraffe"],
+                 "roegadyn": ["roe", "galdjent"],
+                 "viera": ["vii", "bunbun", "bunny"],
+                 "miqote": ["catgirl", "cat", "uwukiteh", "miqo", "miqo'te"],
+                 }
+
+        return check_argument_against_alias_dict(argument, races, "invalid race was passed.")
+
+
+class RaceConverter(commands.Converter):
+    async def convert(self, ctx, argument):
         races = {"hyur": 1, "elezen": 2, "miqo'te": 3,
                  "lalafell": 4, "roegadyn": 5, "au ra": 6,
                  "viera": 7, "hrothgar": 8, "chocobo": 9,
@@ -81,7 +116,6 @@ class RaceConverter(commands.Converter):
 
 class JobConverter(commands.Converter):
     async def convert(self, ctx, argument):
-
         jobs = {"pld": 9, "war": 10, "drk": 11, "drg": 12,
                 "mnk": 13, "nin": 14, "sam": 34, "brd": 15,
                 "mch": 16, "blm": 17, "rdm": 45, "smn": 19,
@@ -98,8 +132,6 @@ class JobConverter(commands.Converter):
 
 class GenderConverter(commands.Converter):
     async def convert(self, ctx, argument):
-
         gender = {"m": 0, "f": 1, "male": 0, "female": 1}
 
         return check_argument_against_dict(argument, gender, "Invalid gender was passed.")
-

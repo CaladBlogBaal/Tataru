@@ -41,7 +41,9 @@ class GamerScapeSource(menus.ListPageSource):
                               )
         embed.description = "\n".join(f"{name.replace('_', ' ')}" for name in entries)
         embed.description = "```\n" + embed.description + "\n```"
-        embed.set_footer(text=f"page {menu.current_page + 1} /{self.get_max_pages()}")
+        link = "https://ffxiv.gamerescape.com"
+        footer = f"page {menu.current_page + 1} /{self.get_max_pages()} \n(data from {link})"
+        embed.set_footer(text=footer)
         return embed
 
 
@@ -63,7 +65,11 @@ class GSImageFindSource(menus.ListPageSource):
         embed = discord.Embed(title=entry["title"], url=self.get_url(entry, "descriptionurl"),
                               color=0x00dcff, description=f"[{entry['name']}]({entry['url']})")
         embed.set_image(url=entry["url"])
-        embed.set_footer(text=f"page {menu.current_page + 1} /{self.get_max_pages()}")
+
+        link = "https://ffxiv.gamerescape.com"
+        footer = f"page {menu.current_page + 1} /{self.get_max_pages()} \n(data from {link})"
+
+        embed.set_footer(text=footer)
         return embed
 
 
@@ -88,5 +94,8 @@ class MirapiSource(menus.ListPageSource):
         embed.set_image(url=page[2])
         embed.set_author(name="MIRAPRI SNAP",
                          icon_url=icon_url)
-        embed.set_footer(text=f"page {menu.page} - result {menu.current_page + 1}/{self.get_max_pages()}")
+
+        text = f"page {menu.page} - result {menu.current_page + 1}/{self.get_max_pages()} \npowered by XIVAPI/Mirapi"
+
+        embed.set_footer(text=text)
         return embed

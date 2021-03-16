@@ -19,7 +19,7 @@ Command and Aliases | Description | Usage
 `prefix` | Returns the bot current prefixes | `tataru prefix`
 `say` | Echo a message | `tataru say <sup, biches>`
 `about` | Get info about the bot | `tataru about`
-`source` | Returns the bot's github url | tataru source [command]
+`source` | Returns the bot's github url | `tataru source`
 
 ### Mirapi ###
 
@@ -60,8 +60,24 @@ Command and Aliases | Description | Usage
 ### gamerscape_image_search (command) ###
 Sub Command and Aliases | Description | Usage
 ----------------|--------------|-------
-`gamerscape_search, gs` | Retrieves images for glamour on gamerscape by filename with optional flags (--g, --r)| `tataru gis glam <no.2 type b boots>, tataru gis glam <no.2 type b boots> --r <lalafell> -g <female>`
+`glam` | Retrieves images for glamour on gamerscape by filename with optional flags (--g, --r)| `tataru gis glam <no.2 type b boots>, tataru gis glam <no.2 type b boots> --r <lalafell> -g <female>`
 
+### glam (command) ###
+Sub Command and Aliases | Description | Usage
+----------------|--------------|-------
+`random`, `r` | The main command for returning random pieces of glamour | `tataru gis glam [sample]`, `tataru gis glam [sample], lalafell`
+
+### random (command) ###
+Sub Command and Aliases | Description | Usage
+----------------|--------------|-------
+`aura`, `liz`, `lizzer`, `lizzard` | return only random au ra pieces | `tat gis glam random aura`
+`elezen` `elf`, `giraffe` | return only random elezen pieces | `tat gis glam random elezen`
+`hrothgar`, `ronso`, `furry` | return only random elezen pieces | `tat gis glam random hrothgar`
+`hyur`, `hume` | return only random hyur pieces | `tat gis glam random hyur`
+`lalafell`, `lala`, `potato` | return only random lalafell pieces | `tat gis glam random lalafell`
+`miqote`, `miqo`, `uwukiteh`, `catgirl`, `cat` | return only random miqo'te pieces | `tat gis glam random miqote`
+`roegadyn`, `roe`, `galdjent` | return only random roegadyn pieces | `tat gis glam random roegadyn`
+`viera`, `vii`, `bunny`, `bunbun` | return only random viera pieces | `tat gis glam random viera`
 
 ### FFlogs ###
 
@@ -100,7 +116,8 @@ Sub Command and Aliases | Description | Usage
    <br><br>
 6. Upon starting the bot by running the main.py file you will finally need to run the add_zones command to 
    setup the fflogs cog, and run the add_images to setup the gamerscape cog.
-
+   <br><br>
+7. Optionally your preferred method of serving images locally with http/https. Note if you choose not to `gis glam random [sub command]` will not function as intended, depending on how you structure your directories you'll need to modify some code you can opt to use the tree structure I have [here](https://pastebin.com/EHD4Z6Rc)
 ## Requirements<br>
 * Python 3.6+
 * v1.3.4+ of discord.py
