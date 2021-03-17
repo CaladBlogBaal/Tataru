@@ -51,9 +51,9 @@ class ExpirngCache(dict):
     def setitem_ttl_dict(self, key, ttl):
         self._ttl_dict[key] = ttl
 
-    def __contains__(self, item):
+    def __getitem__(self, k):
         self.__verify_cache()
-        return super().__contains__(item)
+        return super().__getitem__(k)
 
     def __setitem__(self, key, value):
 
