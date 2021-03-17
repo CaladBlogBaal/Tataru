@@ -58,7 +58,11 @@ class Tataru(commands.Bot):
                 await con.execute(statement, user.id, user.name)
 
 
-bot = Tataru(command_prefix=commands.when_mentioned_or(*config.__prefixes__), case_insensitive=True)
+intents = discord.Intents.default()  # All but the privileged ones
+# need this for discord.User to work as intended
+intents.members = True
+
+bot = Tataru(command_prefix=commands.when_mentioned_or(*config.__prefixes__), case_insensitive=True, intents=intents)
 
 
 @bot.after_invoke
