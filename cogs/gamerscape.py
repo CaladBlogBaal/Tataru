@@ -13,6 +13,9 @@ from datetime import datetime
 import discord
 from discord.ext import commands, flags
 
+# from bs4 import BeautifulSoup
+# for dungeons later
+
 from cog_menus.pages_sources import GamerScapeSource, GSImageFindSource, GSSearch
 from config.utils.converters import RaceAliasesConverter, GenderAliasesConverter
 from config.utils.requests import RequestFailed
@@ -30,6 +33,30 @@ class GamerScape(commands.Cog):
         self.bot = bot
         self.image_root = config.IMAGE_ROOT
         self.domain_name = config.DOMAIN_NAME
+        # image directory names
+        self.CATEGORIES = ["weapons", "body", "head", "feet",
+                           "shield", "hands", "legs", "armor",
+                           "bracelets", "earrings", "armour",
+                           "necklace", "rings", "accessories", "all"]
+
+    def build_paths(self, category, race, gender):
+        paths = []
+
+        if category == "all":
+            # traverse all directories if all is passed
+            # Due to the way I structured my directories weapons and accessories,
+            # have a different path so need to append them manually
+            paths.append(f"{self.image_root}/*/*/{race}/{gender}")
+            paths.append(f"{self.image_root}/weapons")
+            paths.append(f"{self.image_root}/accessories")
+
+        elif category in ("weapons", "accessories", "armour"):
+            paths.append(f"{self.image_root}/{category}")
+
+        else:
+            paths.append(f"{self.image_root}/*/{category}/{race}/{gender}")
+
+        return paths
 
     def validate_filters(self, split, options):
         # ['model', 'ornate_exarchic_top_of_scouting', 'female', 'lalafell.png']
@@ -97,10 +124,14 @@ class GamerScape(commands.Cog):
 
         for i, file in enumerate(files):
             url, name = file
+            title = re.sub(r"(.png|.jpeg)", "", name)
+            title = title.replace("_", " ")
             # serving these images through apache so need to get rid of the /var/www/
             url = url.replace('/var/www/', '')
             url = self.domain_name + url
-            files[i] = {"descriptionurl": url, "url": url, "name": name, "title": name}
+            queryurl = "https://eu.finalfantasyxiv.com/lodestone/playguide/db/search?q=" + title
+
+            files[i] = {"descriptionurl": queryurl, "url": url, "name": name, "title": title}
 
     async def download_gear_from_js(self, js):
         url = js["url"]
@@ -170,16 +201,19 @@ class GamerScape(commands.Cog):
         # * stands for a wildcard, any characters
         gender = await GenderAliasesConverter().convert(ctx, options["g"]) or "*"
         race = await RaceAliasesConverter().convert(ctx, options["r"]) or "*"
-        category = options.get("category") or "*"
-        # build the path for the images based on options
-        path = f"{self.image_root}/*/{category}/{race}/{gender}"
-        files = list(self.get_files(f"{fn}*", path))
+        category = options["c"].lower()
+        # using armor spelling can't relate
+        category = category.replace("armor", "armour")
+        if category not in self.CATEGORIES:
+            prefix = ctx.prefix
+            raise commands.BadArgument(f"invalid category was passed call ```{prefix}help gis cat``` "
+                                       f"for valid categories.")
+        # build the paths for the images based on options
+        paths = self.build_paths(category, race, gender)
 
-        # Due to the way I structured my directories weapons and accessories,
-        # have a different path so need to extend the current result files with additional calls to them
-        wa_path = [f"{self.image_root}/weapons", f"{self.image_root}/accessories"]
+        files = []
 
-        for p in wa_path:
+        for p in paths:
             files.extend(list(self.get_files(f"{fn}*", p)))
 
         # if no files are found it may have not been locally added so fall back and search on gamerscape
@@ -329,7 +363,7 @@ class GamerScape(commands.Cog):
 
     @commands.is_owner()
     @commands.command()
-    async def add_images(self, ctx, delay: typing.Optional[int] = 5, download = False):
+    async def add_images(self, ctx, delay: typing.Optional[int] = 5, download=False):
         """add recently added or every image file's to the database on gamerscape
            optionally download found equipment to the drive to serve through http"""
         # note this will take some time
@@ -421,15 +455,16 @@ class GamerScape(commands.Cog):
     @flags.add_flag("glam", nargs="+")
     @flags.add_flag("--r", default="hyur")
     @flags.add_flag("--g", default="")
+    @flags.add_flag("--c", default="all")
     @gamerscape_image_search.group(cls=flags.FlagGroup, invoke_without_command=True)
     async def glam(self, ctx, **options):
         """retrieves images for glamour on gamerscape by filename
-           with optional parameters for race and gender in flag notation
-           file names are case sensitive
-           note you'll have to set the gender for gender specific glamours
-           and vice versa for race, valid races are as found in the game
-           with some common nicknames, valid genders are male/female or m/f. For races like au ra and
-           miqo'te will need to be encased in " " or you can call them as miqote and aura
+           with optional parameters for race, gender and categories in flag notation
+           file names are case insensitive valid races are as found
+           in the game with some common nicknames, valid genders are male/female or m/f.
+           For races like au ra and miqo'te will need to be encased in " " or
+           you can call them as miqote and aura, valid category names are as found
+           on lodestone, all arm's, tools fall under weapons
            -------------------------------------------------------------
            tataru gis glam name
            tataru gis glam name --r lalafell
@@ -440,6 +475,13 @@ class GamerScape(commands.Cog):
         del options["glam"]
 
         await self.start_menu_gs_source(ctx, item, options)
+
+    @gamerscape_image_search.command(aliases=["cat", "c"])
+    async def categories(self, ctx):
+        """
+        returns acceptable categories for the --c flag for the glam command
+        """
+        await ctx.send(" - ".join(self.CATEGORIES))
 
     @glam.group(aliases=["r", "ran"])
     async def random(self, ctx, sample=10):
