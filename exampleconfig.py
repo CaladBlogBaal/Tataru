@@ -6,3 +6,4 @@ __xivapikey__ = "api key here"
 __prefixes__ = ["stuff",  "blank ", "dab "]
 IMAGE_ROOT = "/var/www/img/"
 DOMAIN_NAME = "http://samplename"
+EVENT_CHANNEL_ID = 00000000000

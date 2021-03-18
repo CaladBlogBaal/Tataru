@@ -105,6 +105,11 @@ if __name__ == "__main__":
 
 @bot.command()
 async def source(ctx):
+    """
+    returns the bot github url
+    -------------------------------------------------------------
+    tataru source
+    """
     await ctx.send("https://github.com/CaladBlogBaal/Tataru")
 
 
@@ -121,7 +126,7 @@ async def say(ctx, *, mesasage):
 @bot.command()
 async def ping(ctx):
     """
-    Check how long the bot takes to
+    Returns the bots web socket latency
     -------------------------------------------------------------
     tataru ping
     """
@@ -141,8 +146,22 @@ async def prefix(ctx):
 
 
 @bot.command()
+async def invite(ctx):
+    """
+    returns the bot invite url
+    -------------------------------------------------------------
+    tataru invite
+    """
+    await ctx.send(discord.utils.oauth_url(ctx.me.id, discord.Permissions(18496)))
+
+
+@bot.command()
 async def about(ctx):
-    """Get info about the bot."""
+    """
+    provides information about the bot
+    -------------------------------------------------------------
+    tataru about
+    """
 
     invite_url = f"[invite url]({discord.utils.oauth_url(ctx.me.id, discord.Permissions(18496))})"
     proc = psutil.Process()
@@ -150,16 +169,17 @@ async def about(ctx):
     command_count = len({command for command in ctx.bot.walk_commands() if "jishaku" not in
                          command.name and "jishaku" not in command.qualified_name})
     py_version = ".".join(str(n) for n in sys.version_info[:3])
+    guild_count = f"```{(len(bot.guilds))}```"
     embed = discord.Embed(color=bot.embed_colour, title="", description=f"")
     embed.add_field(name="Basic:", value=f"**OS**: {platform.platform()}\n**Hostname: **OVH\n**Python Version: **"
-                                         f"{py_version}\n**Links**: {invite_url}")
-    embed.add_field(name="Dev:", value="CaladWoDestroyer#9313")
-    embed.add_field(name="Library:", value=f"Discord.py {discord.__version__}")
-    embed.add_field(name="Commands:", value=str(command_count))
-    embed.add_field(name="RAM:", value=f"Using {h.naturalsize(mem.rss)}")
-    embed.add_field(name="VRAM:", value=str(h.naturalsize(mem.vms) + f" of which {str(h.naturalsize(mem.uss))}"
-                                                                     f"\nis unique to this process"))
-    embed.add_field(name="Web socket ping", value=round(ctx.bot.latency * 1000, 2))
+                                         f"{py_version}\n**Links**: {invite_url}", inline=False)
+    embed.add_field(name="Dev:", value="```CaladWoDestroyer#9313```")
+    embed.add_field(name="Library:", value=f"```Discord.py {discord.__version__}```")
+    embed.add_field(name="Commands:", value=f"```{command_count}```")
+    embed.add_field(name="RAM:", value=f"```Using {h.naturalsize(mem.rss)}```")
+    embed.add_field(name="VRAM:", value=f"```Using {h.naturalsize(mem.vms)}```")
+    embed.add_field(name="Web socket ping", value=f"```{round(ctx.bot.latency * 1000, 2)}```")
+    embed.add_field(name="Guilds:", value=guild_count)
     await ctx.send(embed=embed)
 
 

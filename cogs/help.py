@@ -40,15 +40,15 @@ class MyHelpCommand(commands.MinimalHelpCommand):
     def add_bot_commands_formatting(self, commands, heading):
 
         if commands:
-            self.paginator.add_line(f"➤ **{heading}**")
+            self.paginator.add_line(f"__**{heading}**__:")
 
-            command_list = " - ".join(f"{self.clean_prefix}{c.name}" for c in commands)
-            self.paginator.add_line("%s" % command_list, empty=True)
+            command_list = " · ".join(f"{self.clean_prefix}{c.name if len(c.name) < 10 else c.aliases[0]}" for c in commands)
+            self.paginator.add_line("%s" % command_list)
 
     def add_command_formatting(self, command):
 
         if command.description:
-            self.paginator.add_line(command.description, empty=True)
+            self.paginator.add_line(command.description)
 
         signature = self.get_command_signature(command)
 
@@ -60,7 +60,7 @@ class MyHelpCommand(commands.MinimalHelpCommand):
 
         else:
 
-            self.paginator.add_line(signature, empty=True)
+            self.paginator.add_line(signature)
 
         if command.help:
 
