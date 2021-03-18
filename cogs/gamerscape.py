@@ -129,7 +129,8 @@ class GamerScape(commands.Cog):
             # serving these images through apache so need to get rid of the /var/www/
             url = url.replace('/var/www/', '')
             url = self.domain_name + url
-            queryurl = "https://eu.finalfantasyxiv.com/lodestone/playguide/db/search?q=" + title
+            queryurl = "https://eu.finalfantasyxiv.com/lodestone/playguide/db/search?" \
+                       + parse.urlencode({"q": title}, quote_via=parse.quote)
 
             files[i] = {"descriptionurl": queryurl, "url": url, "name": name, "title": title}
 
