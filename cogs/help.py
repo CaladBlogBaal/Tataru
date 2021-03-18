@@ -41,8 +41,14 @@ class MyHelpCommand(commands.MinimalHelpCommand):
 
         if commands:
             self.paginator.add_line(f"__**{heading}**__:")
+            command_list = []
+            for c in commands:
+                if len(c.name) > 10 and c.aliases:
+                    command_list.append(f"{self.clean_prefix}{c.aliases[0]}")
+                else:
+                    command_list.append(f"{self.clean_prefix}{c.name}")
 
-            command_list = " · ".join(f"{self.clean_prefix}{c.name if len(c.name) < 10 else c.aliases[0]}" for c in commands)
+            command_list = " · ".join(command_list)
             self.paginator.add_line("%s" % command_list)
 
     def add_command_formatting(self, command):
