@@ -1,3 +1,5 @@
+import re
+
 import aiohttp
 
 import asyncpg
@@ -57,12 +59,30 @@ class Tataru(commands.Bot):
             else:
                 await con.execute(statement, user.id, user.name)
 
+    async def on_message(self, message):
+        # dunno why im doing this here
+        if self.user.mentioned_in(message) and re.match(r"^<@(!?)([0-9]*)>(?!.)", message.content):
+            prefixes = ", ".join(config.__prefixes__)
+            await message.channel.send(f"UwU my prefixes are {prefixes}")
 
+        await self.process_commands(message)
+
+    async def close(self):
+        await self.session.close()
+        await self.pool.close()
+        await super().close()
+
+
+# since I have a say command and in the future may implement replies for long to process commands
+allowed_mentions = discord.AllowedMentions(everyone=False, roles=False, replied_user=False)
 intents = discord.Intents.default()  # All but the privileged ones
 # need this for discord.User to work as intended
 intents.members = True
 
-bot = Tataru(command_prefix=commands.when_mentioned_or(*config.__prefixes__), case_insensitive=True, intents=intents)
+bot = Tataru(command_prefix=commands.when_mentioned_or(*config.__prefixes__),
+             case_insensitive=True,
+             intents=intents,
+             allowed_mentions=allowed_mentions)
 
 
 @bot.after_invoke
