@@ -34,7 +34,7 @@ class CharacterAndWorldConverter(commands.Converter):
             check = await ctx.db.fetchval("SELECT name from world where LOWER(name) like $1", args[0].lower())
 
             if not check:
-                raise commands.BadArgument(f"Invalid world `{args[0]}` was passed.")
+                raise commands.BadArgument(f"Invalid ffxiv world `{args[0]}` was passed.")
 
             if len(args) < 3:
                 raise commands.BadArgument("character surname is a required argument that is missing.")
@@ -73,13 +73,13 @@ def check_argument_against_dict(argument, _dict, error_msg):
     if argument in _dict:
         return _dict[argument]
 
-    raise commands.BadArgument(error_msg)
+    raise commands.BadArgument(error_msg.format(argument))
 
 
 class GenderAliasesConverter(commands.Converter):
     async def convert(self, ctx, argument):
         genders = {"male": ["m"], "female": ["f"]}
-        return check_argument_against_alias_dict(argument, genders, "invalid gender was passed.")
+        return check_argument_against_alias_dict(argument, genders, "invalid gender `{0}` was passed.")
 
 
 class RaceAliasesConverter(commands.Converter):
@@ -95,7 +95,7 @@ class RaceAliasesConverter(commands.Converter):
                  "miqote": ["catgirl", "cat", "uwukiteh", "miqo", "miqo'te"],
                  }
 
-        return check_argument_against_alias_dict(argument, races, "invalid race was passed.")
+        return check_argument_against_alias_dict(argument, races, "invalid ffxiv race `{0}` was passed.")
 
 
 class RaceConverter(commands.Converter):
@@ -111,7 +111,7 @@ class RaceConverter(commands.Converter):
                  "cat": 3, "miqote": 3, "aura": 6, "miqo": 3,
                  "catgirl": 3, "uwukiteh": 3}
 
-        return check_argument_against_dict(argument, races, "Invalid race was passed.")
+        return check_argument_against_dict(argument, races, "Invalid ffxiv race/(race id) `{0}` was passed.")
 
 
 class JobConverter(commands.Converter):
@@ -127,11 +127,11 @@ class JobConverter(commands.Converter):
                 "summoner": 19, "white mage": 20, "astrologian": 21,
                 "blue mage": 36, "dancer": 37, "gun breaker": 38}
 
-        return check_argument_against_dict(argument, jobs, "Invalid job was passed.")
+        return check_argument_against_dict(argument, jobs, "Invalid ffxiv job/(job id) `{0}` was passed.")
 
 
 class GenderConverter(commands.Converter):
     async def convert(self, ctx, argument):
         gender = {"m": 0, "f": 1, "male": 0, "female": 1}
 
-        return check_argument_against_dict(argument, gender, "Invalid gender was passed.")
+        return check_argument_against_dict(argument, gender, "Invalid gender `{0}` was passed.")
