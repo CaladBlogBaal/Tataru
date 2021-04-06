@@ -17,7 +17,22 @@ SCHOLAR = PartialEmoji(animated=False, name="scholar", id=733771591342620762)
 GNB = PartialEmoji(animated=False, name="gunbreaker", id=740621571680501861)
 PALADIN = PartialEmoji(animated=False, name="paladin", id=740620986298269699)
 DANCER = PartialEmoji(animated=False, name="dancer", id=740621570157838387)
+# SAGE = PartialEmoji(animated=False, name="sage", id=0)
 
-ICONS = [BLACKMAGE, ASTROLOGIAN, BARD, DRAGOON, SAMURAI,
-         DARKKNIGHT, MONK, MACHINIST, REDMAGE, DANCER,
-         SCHOLAR, WHITEMAGE, SUMMONER, NINJA, WARRIOR, GNB]
+ICONS = {BLACKMAGE.name: BLACKMAGE,
+         ASTROLOGIAN.name: ASTROLOGIAN,
+         BARD.name: BARD,
+         DRAGOON.name: DRAGOON,
+         DARKKNIGHT.name: DARKKNIGHT,
+         MONK.name: MONK,
+         MACHINIST.name: MACHINIST,
+         REDMAGE.name: REDMAGE,
+         NINJA.name: NINJA,
+         SAMURAI.name: SAMURAI,
+         WARRIOR.name: WARRIOR,
+         SUMMONER.name: SUMMONER,
+         WHITEMAGE.name: WHITEMAGE,
+         SCHOLAR.name: SCHOLAR,
+         GNB.name: GNB,
+         PALADIN.name: PALADIN,
+         DANCER.name: DANCER}

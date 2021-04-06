@@ -16,13 +16,16 @@ class SearchSource(menus.ListPageSource):
 
 
 class ParseSource(menus.ListPageSource):
-    def __init__(self, data):
+    def __init__(self, embed_tuple, data):
+        self.embed_tuple = embed_tuple
         super().__init__(data, per_page=10)
 
     async def format_page(self, menu, entries):
-        embed = discord.Embed(title=entries[0][0], url=entries[0][1],
+        embed = discord.Embed(title=f"{self.embed_tuple.title} ({self.embed_tuple.zone_name})",
+                              url=self.embed_tuple.url,
                               color=0x00dcff)
-        embed.description = f"".join(t[3] for t in entries)
+
+        embed.description = "".join(e for e in entries)
 
         # for entry in entries:
         #    embed.add_field(name=u"\u200B", value=entry[3])
