@@ -1,11 +1,21 @@
 import traceback
 import sys
 
+import discord
 from discord.ext import commands
 from discord.ext.flags import ArgumentParsingError
-import discord
+
+from pyxivapi import XIVAPIForbidden
 
 from config.utils.requests import RequestFailed
+
+
+class ParsesNotFound(Exception):
+    pass
+
+
+class CharacterNotFound(Exception):
+    pass
 
 
 class CommandErrorHandler(commands.Cog):
@@ -35,7 +45,9 @@ class CommandErrorHandler(commands.Cog):
 
                          commands.DisabledCommand, commands.BadArgument, commands.BadUnionArgument,
 
-                         RequestFailed, ArgumentParsingError)
+                         RequestFailed, ArgumentParsingError, XIVAPIForbidden, CharacterNotFound,
+
+                         ParsesNotFound)
 
         error = getattr(error, 'original', error)
 
