@@ -39,16 +39,22 @@ CREATE TABLE IF NOT EXISTS bracket (
     expansion_name varchar(3),
     max real,
     FOREIGN KEY (expansion_name) REFERENCES expansion (name)
-
 );
 
 CREATE TABLE IF NOT EXISTS zone (
     id smallint PRIMARY KEY,
     name text,
     frozen boolean,
-    blacklist boolean DEFAULT false,
     expansion_name varchar(3),
     FOREIGN KEY (expansion_name) REFERENCES expansion (name)
+);
+
+CREATE TABLE IF NOT EXISTS difficulties (
+    id SMALLSERIAL PRIMARY KEY,
+    diff_id smallint,
+    zone_id smallint,
+    name varchar(9),
+    FOREIGN KEY (zone_id) REFERENCES zone (id)
 );
 
 CREATE TABLE IF NOT EXISTS encounter (
@@ -74,6 +80,7 @@ CREATE TABLE IF NOT EXISTS gamerscape_images (
 
 );
 
+INSERT INTO expansion (name, patch_number) values('Ew', 6.0) ON CONFLICT DO NOTHING;
 INSERT INTO expansion (name, patch_number) values('ShB', 5.0) ON CONFLICT DO NOTHING;
 INSERT INTO expansion (name, patch_number) values('StB', 4.0) ON CONFLICT DO NOTHING;
 INSERT INTO expansion (name, patch_number) values('Hw', 3.0) ON CONFLICT DO NOTHING;
