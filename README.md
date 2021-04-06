@@ -4,16 +4,20 @@ Bot Invite link [here](https://discordapp.com/oauth2/authorize?client_id=7329601
 
 Commands List
 -------------
+
 **Info:** Bot prefix is `tataru`, < > refers to a required argument, [ ] is optional,do not actually type these. <br>
-"--" denotes a flag for an argument eg. --flagname argument
+"--" denotes a flag for an argument eg. --flagname argument <br>
+
+(*note: subcommands for the commands encounterlogs, logs of category FFlogs are omitted 
+as they're similar to the tierlogs command*)
 
 ### Help ###
-Command and Aliases | Description | Usage
+Command and Aliases | Description | Example Usage
 ---------------|--------------|-------
 `help` | Shows help about a command, or category | `tataru help <command name>`, `tataru help <category name>`
 
 ### No Category ###
-Command and Aliases | Description | Usage
+Command and Aliases | Description | Example Usage
 ---------------|--------------|-------
 `ping` | Check the bot's websocket latency | `tataru ping`
 `prefix` | Returns the bot current prefixes | `tataru prefix`
@@ -23,7 +27,7 @@ Command and Aliases | Description | Usage
 
 ### Mirapi ###
 
-Command and Aliases | Description | Usage
+Command and Aliases | Description | Example Usage
 ----------------|--------------|-------
 `mirapi, mi` | The main command for mirapi by itself returns glamours on the main page | `tataru mirapi`
 `acceptable_flags, af` | Returns acceptable arguments that can be passed as flags for equipment and filters commands | `tataru acceptable_flags`
@@ -31,44 +35,44 @@ Command and Aliases | Description | Usage
 `getraceids, gri` | Returns acceptable race ids for the --r flag | `tataru getraceids`
 
 ### mirapi (command) ###
-Sub Command and Aliases | Description | Usage
+Sub Command and Aliases | Description | Example Usage
 ----------------|--------------|-------
 `filters, f, filter` | Returns glamours based on flags (--r, --g, --j) | `tataru mirapi filters --r <4> --g <f> --j <war>`, `tataru mirapi filters --r <lalafell>`
 `search, s, se` |The main command for retrieving glamours on mirapi based on a keyword | `tataru mirapi search <keyword>`
 
 ### search (command) ###
-Sub Command and Aliases | Description | Usage
+Sub Command and Aliases | Description | Example Usage
 ----------------|--------------|-------
 `filters, f, filter` | Returns glamours based on a keyword with optional flags (--r, --g, --j) | `tataru mirapi search filters <詩人らしく> --r <4> --g <f> --j <war>`, `tataru mirapi search filters --r <lalafell>`
 `equipment, eq` | Returns glamours based on equipment name with optional flags (--r, --g, --j) | `tataru mirapi search equipment <no.2 type b boots> --r <4> --g <f> --j <war>`, `tataru mirapi search equipment <cotton kurta> --r <lalafell>`
 
 ### LodeStone ###
 
-Command and Aliases | Description | Usage
+Command and Aliases | Description | Example Usage
 ----------------|--------------|-------
 `iam` | Save a character | `tataru iam <world> <forename> <surname>`
 `portrait, por` | Returns a character's lodestone portrait | `tataru portrait <world> <forename> <surname>`, `tataru portrait`, `tataru portrait <@user>`
 
 ### GamerScape ###
 
-Command and Aliases | Description | Usage
+Command and Aliases | Description | Example Usage
 ----------------|--------------|-------
 `gamerscape_image_find, gif` | Search for an image on gamerscape by filename  | `tataru gif <name>`
 `gamerscape_image_search, gis` | Retrieves image names on gamerscape by filename (case sensitive) | `tataru gis <name>`
 `gamerscape_search, gs` | Retrieves pages on gamerscape based on the query | `tataru gs <query>`
 
 ### gamerscape_image_search (command) ###
-Sub Command and Aliases | Description | Usage
+Sub Command and Aliases | Description | Example Usage
 ----------------|--------------|-------
 `glam` | Retrieves images for glamour on gamerscape by filename with optional flags (--g, --r)| `tataru gis glam <no.2 type b boots>, tataru gis glam <no.2 type b boots> --r <lalafell> -g <female>`
 
 ### glam (command) ###
-Sub Command and Aliases | Description | Usage
+Sub Command and Aliases | Description | Example Usage
 ----------------|--------------|-------
 `random`, `r` | The main command for returning random pieces of glamour | `tataru gis glam [sample]`, `tataru gis glam [sample], lalafell`
 
 ### random (command) ###
-Sub Command and Aliases | Description | Usage
+Sub Command and Aliases | Description | Example Usage
 ----------------|--------------|-------
 `aura`, `liz`, `lizzer`, `lizzard` | return only random au ra pieces | `tat gis glam random aura`
 `elezen` `elf`, `giraffe` | return only random elezen pieces | `tat gis glam random elezen`
@@ -81,19 +85,20 @@ Sub Command and Aliases | Description | Usage
 
 ### FFlogs ###
 
-Command and Aliases | Description | Usage
+Command and Aliases | Description | Example Usage
 ----------------|--------------|-------
-`encounterlogs, el, encounter` | returns all parses/logs for an encounter by name as found on fflogs | `tataru el <shadowkeeper> <world> <forename> <surname>`, `tataru el <e10n> <@User>`, `tataru el <"cloud of darkness">`
+`encounterlogs, el, encounter` | returns all parses for an encounter by name as found on fflogs | `tataru el <shadowkeeper> <world> <forename> <surname>`, `tataru el <e10n> <@User>`, `tataru el <"cloud of darkness">`
 `search` | search for a player or free company and retrieve their fflogs page | `tataru search <Calad Baal>`
 `tierlogs, tl` | Displays raid parses for the current expansion's raid tier | `tataru tierlogs`, `tataru tierlogs <@User>`, `tataru tierlogs <world> <forename> <surname>`
+`logs, l` | returns all parses for a zone by name as found on fflogs | `tataru logs 'Eden's Promise'`, `tataru logs 'Eden's Promise' <@User>`, `tataru logs 'Eden's Promise' <world> <forename> <surname>`
 
 ### tierlogs (command) ###
-Sub Command and Aliases | Description | Usage
+Sub Command and Aliases | Description | Example Usage
 ----------------|--------------|-------
 `best, b` | Displays best raid parses for the current expansion's content | `tataru tierlogs best`, `tataru tierlogs best <@User>`, `tataru tierlogs best <world> <forename> <surname>`
 
 ### best (command) ###
-Sub Command and Aliases | Description | Usage
+Sub Command and Aliases | Description | Example Usage
 ----------------|--------------|-------
 `adps` | sets the metric for rankings to adps | `tataru tierlogs best adps`, `tataru tierlogs best adps <@User>`, `tataru tierlogs best adps <world> <forename> <surname>`
 
