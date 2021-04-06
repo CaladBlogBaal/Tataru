@@ -1,4 +1,5 @@
 import enum
+import copy
 import asyncio
 
 from functools import wraps
@@ -34,15 +35,15 @@ def _wrap_value_in_coroutine(val):
     return wrapper()
 
 
-class ExpirngCache(dict):
+class ExpiringCache(dict):
     def __init__(self, minutes):
         self._ttl = timedelta(minutes=minutes)
         self._ttl_dict = {}
         super().__init__()
 
     def __verify_cache(self):
-
-        d = (k for k in self if datetime.utcnow() >= self._ttl_dict.get(k))
+        # creating a shallow copy
+        d = (k for k in copy.copy(self) if datetime.utcnow() >= self._ttl_dict.get(k))
 
         for k in d:
             del self._ttl_dict[k]
@@ -71,7 +72,7 @@ def cache(maxsize=256, strategy=Strategy.lru):
             __stats = __cache.items
 
         elif strategy is Strategy.timed:
-            __cache = ExpirngCache(maxsize)
+            __cache = ExpiringCache(maxsize)
             __stats = __cache.items
 
         def make_key(*args, **kwargs):
