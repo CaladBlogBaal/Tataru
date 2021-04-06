@@ -8,3 +8,6 @@ asyncpg==0.20.1
 pyxivapi==0.2.0
 discord-ext-menus @ git+https://github.com/Rapptz/discord-ext-menus@6f2b873bf0d28903eb752aa1166b3aac26dc9007
 beautifulsoup4==4.9.1
+Async-OAuthlib==0.0.9
+oauthlib==3.1.0
+python-graphql-client==0.4.3
