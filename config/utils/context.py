@@ -5,7 +5,9 @@ You can obtain one at https://mozilla.org/MPL/2.0/.
 """
 # code is taken from
 # https://github.com/Rapptz/RoboDanny/blob/ac3a0ed64381050c37761d358d4af90b89ec1ca3/cogs/utils/context.py
-from discord.ext import commands, menus
+from discord.ext import commands
+
+from cog_menus import menus
 
 
 class _ContextDBAcquire:
@@ -34,7 +36,9 @@ class Context(commands.Context):
         super().__init__(**kwargs)
         self.pool = self.bot.pool
         self._db = None
-        self.menu = menus.MenuPages
+        self.menu = menus.BaseMenu
+        self.reply_menu = menus.ReplyMenu
+        self.remove_menu = menus.MenuRemoveReactions
 
     @property
     def db(self):
