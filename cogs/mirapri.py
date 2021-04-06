@@ -184,7 +184,8 @@ class Mirapi(commands.Cog):
     async def search_mirapi(self, ctx, options):
         params = options
 
-        soup = await get_soup(self.url, params, ctx.bot.fetch)
+        async with ctx.typing():
+            soup = await get_soup(self.url, params, ctx.bot.fetch)
 
         if soup.find("img", {"alt": "Nopost"}):
             raise commands.BadArgument(f"search failed for `{options['keyword']}`")
@@ -200,11 +201,11 @@ class Mirapi(commands.Cog):
         """
         the main command for mirapi by itself returns glamours on the main page
         """
-        await ctx.trigger_typing()
         await self.search_mirapi(ctx, {"page": 1})
 
     @mirapi.error
     async def on_mirapi_error(self, ctx, error):
+
         if isinstance(error, discord.ext.commands.errors.TooManyArguments):
             return await ctx.send("⛔ | Invalid subcommand was passed, valid subcommands are `filter, search`",
                                   delete_after=5)
@@ -228,7 +229,6 @@ class Mirapi(commands.Cog):
 
         await self.convert_flags(ctx, options)
         options["page"] = 1
-        await ctx.trigger_typing()
         await self.search_mirapi(ctx, options)
 
     @mirapi.group(invoke_without_command=True, aliases=["se", "s"])
@@ -238,7 +238,7 @@ class Mirapi(commands.Cog):
 
         tataru mirapi search query
         """
-        await ctx.trigger_typing()
+
         await self.search_mirapi(ctx, {"keyword": query, "page": 1})
 
     @flags.add_flag("keyword", nargs="+")
@@ -259,7 +259,6 @@ class Mirapi(commands.Cog):
         await self.convert_flags(ctx, options)
         options["keyword"] = " ".join(options["keyword"])
         options["page"] = 1
-        await ctx.trigger_typing()
         await self.search_mirapi(ctx, options)
 
     @flags.add_flag("keyword", nargs="+")
@@ -295,7 +294,6 @@ class Mirapi(commands.Cog):
         options["keyword"] = name
         options["page"] = 1
 
-        await ctx.trigger_typing()
         await self.search_mirapi(ctx, options)
 
     @commands.command(aliases=["af"])
