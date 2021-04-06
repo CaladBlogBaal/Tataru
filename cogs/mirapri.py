@@ -7,6 +7,7 @@ from discord.ext import commands, flags, menus
 from bs4 import BeautifulSoup
 
 from cog_menus.pages_sources import MirapiSource
+from cog_menus import menus as base
 from config.utils.cache import cache, Strategy
 from config.utils.converters import RaceConverter, JobConverter, GenderConverter
 
@@ -27,7 +28,7 @@ async def get_soup(url, params, request_func):
     return soup
 
 
-class MirapiMenuPages(menus.MenuPages):
+class MirapiMenuPages(base.BaseMenu):
     def __init__(self, source, **kwargs):
         super().__init__(source, **kwargs)
         self.page = 1
@@ -48,6 +49,20 @@ class MirapiMenuPages(menus.MenuPages):
         embed.set_image(url="https://media1.tenor.com/images/37672d9e1ca24e234dc1864df3d8ab25/tenor.gif")
         await self.message.edit(embed=embed)
 
+    async def change_page(self, down=False):
+        if self.lock.locked():
+            return
+
+        async with self.lock:
+            await self.loading_embed()
+
+            if down:
+                source = await self.generate_new_source(-1)
+            else:
+                source = await self.generate_new_source()
+
+            await self.change_source(source)
+
     async def generate_new_source(self, increment=1):
 
         params = self.source.params
@@ -67,17 +82,13 @@ class MirapiMenuPages(menus.MenuPages):
         source = MirapiSource(get_links(soup), params, max_pages)
         return source
 
-    @menus.button("⏫", position=menus.Last(3))
+    @menus.button("⏫", position=menus.Last(3), lock=False)
     async def page_up(self, payload):
-        await self.loading_embed()
-        source = await self.generate_new_source()
-        await self.change_source(source)
+        await self.change_page()
 
-    @menus.button("⏬", position=menus.Last(4))
+    @menus.button("⏬", position=menus.Last(4), lock=False)
     async def page_down(self, payload):
-        await self.loading_embed()
-        source = await self.generate_new_source(-1)
-        await self.change_source(source)
+        await self.change_page(True)
 
     @menus.button("🔖", position=menus.Last(5))
     async def bookmark(self, payload):
@@ -94,35 +105,40 @@ class MirapiMenuPages(menus.MenuPages):
         self.current_bookmark["embed"] = embed
         await self.message.edit(**self.current_bookmark)
 
-    @menus.button("ℹ️", position=menus.Last(7))
+    @menus.button("ℹ️", position=menus.Last(7), lock=False)
     async def menu_help(self, payload):
-        embed = discord.Embed(title="Menu help", colour=0x00dcff)
-        description = "🔖 - bookmark the current page\n"
-        description += "📖 - jump to the bookmarked page\n"
-        description += "◀️ - go back\n"
-        description += "▶️ - go forward\n"
-        description += "⏹️ - terminate the menu\n"
-        description += "⏩ - go to last page\n"
-        description += "⏪ - go to first page\n"
-        description += "⏫ - go up a page\n"
-        description += "⏬ - go down a page\n"
-        description += "ℹ️ - shows this message"
-        #embed.add_field(name="🔖", value="bookmark the current page", inline=False)
-        #embed.add_field(name="📖", value="jump to the bookmarked page", inline=False)
-        #embed.add_field(name="◀️", value="go back", inline=False)
-        #embed.add_field(name="▶️", value="go forward", inline=False)
-        #embed.add_field(name="⏹️", value="terminate the menu", inline=False)
-        #embed.add_field(name="\N{BLACK RIGHT-POINTING DOUBLE TRIANGLE WITH VERTICAL BAR}\ufe0f",
-        #                value="go to first result", inline=False)
-        #embed.add_field(name="\N{BLACK LEFT-POINTING DOUBLE TRIANGLE WITH VERTICAL BAR}\ufe0f",
-        #                value="go to last result", inline=False)
-        #embed.add_field(name="⏫", value="go up a page", inline=False)
-        #embed.add_field(name="⏬", value="go down a page", inline=False)
-        #embed.add_field(name="ℹ️", value="shows this message", inline=False)
-        embed.description = description
-        await self.message.edit(embed=embed)
-        await asyncio.sleep(10)
-        await self.show_current_page()
+
+        if self.lock.locked():
+            return
+
+        async with self.lock:
+            embed = discord.Embed(title="Menu help", colour=0x00dcff)
+            description = "🔖 - bookmark the current page\n"
+            description += "📖 - jump to the bookmarked page\n"
+            description += "◀️ - go back\n"
+            description += "▶️ - go forward\n"
+            description += "⏹️ - terminate the menu\n"
+            description += "⏩ - go to last page\n"
+            description += "⏪ - go to first page\n"
+            description += "⏫ - go up a page\n"
+            description += "⏬ - go down a page\n"
+            description += "ℹ️ - shows this message"
+            #embed.add_field(name="🔖", value="bookmark the current page", inline=False)
+            #embed.add_field(name="📖", value="jump to the bookmarked page", inline=False)
+            #embed.add_field(name="◀️", value="go back", inline=False)
+            #embed.add_field(name="▶️", value="go forward", inline=False)
+            #embed.add_field(name="⏹️", value="terminate the menu", inline=False)
+            #embed.add_field(name="\N{BLACK RIGHT-POINTING DOUBLE TRIANGLE WITH VERTICAL BAR}\ufe0f",
+            #                value="go to first result", inline=False)
+            #embed.add_field(name="\N{BLACK LEFT-POINTING DOUBLE TRIANGLE WITH VERTICAL BAR}\ufe0f",
+            #                value="go to last result", inline=False)
+            #embed.add_field(name="⏫", value="go up a page", inline=False)
+            #embed.add_field(name="⏬", value="go down a page", inline=False)
+            #embed.add_field(name="ℹ️", value="shows this message", inline=False)
+            embed.description = description
+            await self.message.edit(embed=embed)
+            await asyncio.sleep(10)
+            await self.show_current_page()
 
 
 class Mirapi(commands.Cog):
