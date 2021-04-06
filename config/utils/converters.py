@@ -29,16 +29,16 @@ class CharacterAndWorldConverter(commands.Converter):
         await ctx.acquire()
 
         if isinstance(argument, str):
-            error = {1: "character name", 2: "character surname"}
             args = argument.split(" ")
-
-            if len(args) < 3 and len(args) != 2:
-                raise commands.BadArgument(error[len(args)] + " is a required argument that is missing.")
 
             check = await ctx.db.fetchval("SELECT name from world where LOWER(name) like $1", args[0].lower())
 
             if not check:
-                raise commands.BadArgument("Invalid world was passed.")
+                raise commands.BadArgument(f"Invalid world `{args[0]}` was passed.")
+
+            if len(args) < 3:
+                raise commands.BadArgument("character surname is a required argument that is missing.")
+
             # ensuring ffxiv naming conventions are met
             return {"world": args[0].capitalize(),
                     "first_name": args[1].lower().capitalize(),
