@@ -485,17 +485,13 @@ class GamerScape(commands.Cog):
         await ctx.send(" - ".join(self.CATEGORIES))
 
     @glam.group(aliases=["r", "ran"])
-    async def random(self, ctx, sample=10):
-        """The main command for returning random pieces of glamour
-           subcommands act as optional filters, with an optional sample for
-           the amount of images to return
+    async def random(self, ctx):
+        """The main command for returning 10 random pieces of glamour
+           subcommands act as optional filters
            -------------------------------------------------------------
-           tat gis glam random 10
+           tat gis glam random
            tat gis glam random lalafell
         """
-
-        if sample < 1 or sample > 100:
-            raise commands.BadArgument("sample size must be between the range 1-100")
 
         if ctx.invoked_subcommand:
             race = ctx.invoked_subcommand.name
@@ -507,7 +503,7 @@ class GamerScape(commands.Cog):
         files = list(self.get_files("*.png", path))
         try:
             # there should be at least 170k+ images locally added
-            files = random.sample(files, sample)
+            files = random.sample(files, 10)
         except ValueError:
             return await ctx.send("Sample too large, or no images have been locally added.")
         self.clean_files(files)
