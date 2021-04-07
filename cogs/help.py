@@ -15,21 +15,20 @@ class MyHelpCommand(commands.MinimalHelpCommand):
         return '**{0.clean_prefix}{1.qualified_name} {1.signature}**'.format(self, command)
 
     def get_opening_note(self):
+        command_name = self.invoked_with
 
-        return None
+        string = """+ Use {0}{1} [command name/category name] for extra info.
++ Category names are case sensitive.
+- < > refers to a required argument,
+- [ ] is optional, do not type these.
+- -- Denotes a flag for an argument eg. --flagname argument"""
+
+        return f"```diff\n{string}```".format(self.clean_prefix, command_name)
 
     def get_ending_note(self):
 
-        command_name = self.invoked_with
-
-        first_line = "Use **{0}{1} [command name/category name]** for more info on a command.\n"
-
-        second_line = "*category names are case sensitive*.\n"
-
-        third_line = ":information_source: < > refers to a required argument, [ ] is optional," \
-                     "**do not actually type these**\n-- denotes a flag for an argument eg. --flagname argument \n"
-
-        return f"{first_line}{second_line}{third_line}".format(self.clean_prefix, command_name)
+        return "If you run into any issues/bugs support can be recieved at the" \
+               " [support server](https://discord.gg/UXvy2Wevrp)."
 
     def add_subcommand_formatting(self, command):
 
