@@ -69,7 +69,7 @@ Sub Command and Aliases | Description | Example Usage
 ### glam (command) ###
 Sub Command and Aliases | Description | Example Usage
 ----------------|--------------|-------
-`random`, `r` | The main command for returning random pieces of glamour | `tataru gis glam [sample]`, `tataru gis glam [sample], lalafell`
+`random`, `r` | The main command for returning random pieces of glamour | `tataru gis glam random`
 
 ### random (command) ###
 Sub Command and Aliases | Description | Example Usage
