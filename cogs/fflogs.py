@@ -744,7 +744,7 @@ class FFlogs(commands.Cog):
 
             zone = await ctx.db.fetchval("SELECT name from zone where id = $1", data["zone_id"])
 
-            if not zone == "Ultimates":
+            if "Ultimates" not in zone:
                 return await ctx.send("passed in an encounter that is not an ultimate.")
 
             check = await ctx.db.execute("UPDATE encounter SET alias_n = $1, alias_s = alias_n where id = $2",
