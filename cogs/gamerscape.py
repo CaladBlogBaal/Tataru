@@ -347,7 +347,7 @@ class GamerScape(commands.Cog):
         """
         downloads an image and adds it to the specified path
         """
-        if not filename.endswith((".png", ".jpeg")):
+        if not filename.lower().endswith((".png", ".jpeg", "jpg")):
             return await ctx.send("Invalid filename.")
 
         if not re.match('https?://(?:[-\\w.]|(?:%[\\da-fA-F]{2}))+', url):
@@ -357,6 +357,7 @@ class GamerScape(commands.Cog):
             res = await self.bot.fetch(url)
             with open(path + "\\" + filename, "wb") as f:
                 f.write(res)
+            await ctx.send("Successfully downloaded file.")
         except (RequestFailed, FileNotFoundError) as e:
             if isinstance(e, RequestFailed):
                 return await ctx.send("Failed to download file.")
