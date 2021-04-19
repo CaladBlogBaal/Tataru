@@ -134,7 +134,31 @@ class GamerScape(commands.Cog):
 
             files[i] = {"descriptionurl": queryurl, "url": url, "name": name, "title": title}
 
+    def get_race(self, url):
+
+        regex = re.compile("(hrothgar|lalafell|miqote|aura|viera|hyur|roe|elezen|roegadyn)")
+        race = regex.search(url.lower())
+
+        if race:
+
+            race = race.group(1).lower()
+        else:
+
+            race = ""
+
+        if race == "roe":
+            race = "roegadyn"
+
+        return race
+
+    def get_gender(self, url):
+        gender = "male"
+        if "female" in url.lower():
+            gender = "female"
+        return gender
+
     async def download_gear_from_js(self, js):
+        # k should probably refactor this later is fucked
         url = js["url"]
         filename = re.match(r"https:\/\/ffxiv\.gamerescape\.com\/w\/images.*Model-(.*)\.png", url)
         # not a piece of gear so ignore it
@@ -144,12 +168,22 @@ class GamerScape(commands.Cog):
         filename = filename.group(1)
         filename = parse.unquote(filename)
 
+        race = self.get_race(url)
+        gender = self.get_gender(url)
+        # hacky shit
+        if "yorha" in filename.lower():
+            filename = filename.lower().replace(race, "").replace(gender, "")
+            query_name = filename.replace("_", " ")
+        else:
+            filename = filename.lower().replace(race, "").replace("-", "").replace(gender, "")
+            query_name = filename.replace("_", " ").replace("-", "")
+
         category = None
         result = await self.bot.pyxivapi.index_search(indexes=["item"],
-                                                      name=filename.replace("_", " ").replace("-", ""),
+                                                      name=query_name,
                                                       columns=["ItemUICategory.Name"], language="en")
         if result["Results"]:
-            category = result[0]['ItemUICategory']["Name"].lower()
+            category = result["Results"][0]['ItemUICategory']["Name"].lower()
 
         if not category:
             # not a piece of gear so ignore it
@@ -167,27 +201,15 @@ class GamerScape(commands.Cog):
             # image_root/accessories/name/filename
             path = "{}/accessories/{}/{}.png".format(self.image_root, category, filename)
         else:
-            gender = "male"
-            url = js["url"].lower()
-
-            if "female" in url:
-                gender = "female"
-
-            regex = re.compile("(hrothgar|lalafell|miqote|aura|viera|hyur|roe|elezen|roegadyn)")
-            race = regex.search(url)
 
             if not race or not gender:
                 return print(f"this url needs to be checked and manually added: {url}")
 
-            race = race.group(1).lower()
-            # gamer scape sometimes shortens roegadyn to roe
-            if race == "roe":
-                race = "roegadyn"
-            filename = filename.replace(race, "").replace("-", "")
             # image_root/armour/category/gender/race/filename
-            path = "{}/armour/{}/{}/{}/{}.png".format(self.image_root, category, gender, race, filename)
+            path = "{}/armour/{}/{}/{}/{}.png".format(self.image_root, category, race, gender, filename)
 
         try:
+
             print(f"downloading ... {url}")
             image_bytes = await self.bot.fetch(url)
             with open(path, "wb") as f:
