@@ -52,9 +52,9 @@ class Request:
             return await self.return_content(response, headers)
 
     @error_handle
-    async def post(self, url, data, **kwargs):
+    async def post(self, url, **kwargs):
 
-        async with self.session.post(url, data=data, **kwargs) as response:
+        async with self.session.post(url, **kwargs) as response:
 
             headers = response.headers.get("content-type")
             return await self.return_content(response, headers)
