@@ -53,6 +53,9 @@ class GamerScape(commands.Cog):
         elif category in ("weapons", "accessories", "armour"):
             paths.append(f"{self.image_root}/{category}")
 
+        elif category == "shield":
+            paths.append(f"{self.image_root}/armour/{category}")
+
         else:
             paths.append(f"{self.image_root}/*/{category}/{race}/{gender}")
 
@@ -179,23 +182,27 @@ class GamerScape(commands.Cog):
             query_name = filename.replace("_", " ").replace("-", "")
 
         category = None
+        kind = None
+
         result = await self.bot.pyxivapi.index_search(indexes=["item"],
                                                       name=query_name,
-                                                      columns=["ItemUICategory.Name"], language="en")
+                                                      columns=["ItemUICategory.Name", "ItemKind.Name"], language="en")
         if result["Results"]:
             category = result["Results"][0]['ItemUICategory']["Name"].lower()
+            kind = result["Results"][0]['ItemKind']["Name"].lower()
 
         if not category:
             # not a piece of gear so ignore it
             return
-
-        if "arms" in category or "tools" in category:
+        # reason why checking for arm in kind and category is to catch fringe cases like "arcanist grimoire"
+        # and falling back to category where the kind is "other"
+        if "arm" in kind or "tool" in kind or "arm" in category:
             # image_root/weapons/filename
             path = "{}/weapons/{}.png".format(self.image_root, filename)
 
         elif category == "shield":
-            # image_root/shield/filename
-            path = "{}/shield/{}.png".format(self.image_root, filename)
+            # image_root/armour/shield/filename
+            path = "{}/armour/shield/{}.png".format(self.image_root, filename)
 
         elif any(category == x for x in ("bracelets", "necklace", "rings", "earrings")):
             # image_root/accessories/name/filename
@@ -203,6 +210,7 @@ class GamerScape(commands.Cog):
         else:
 
             if not race or not gender:
+                # going to be using logging for this later.tm
                 return print(f"this url needs to be checked and manually added: {url}")
 
             # image_root/armour/category/gender/race/filename
@@ -210,7 +218,7 @@ class GamerScape(commands.Cog):
 
         try:
 
-            print(f"downloading ... {url}")
+            print(f"downloading ... {url}\nCategory: {category}\nKind: {kind}\nPath: {path}")
             image_bytes = await self.bot.fetch(url)
             with open(path, "wb") as f:
                 f.write(image_bytes)
