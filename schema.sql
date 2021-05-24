@@ -86,4 +86,5 @@ INSERT INTO expansion (name, patch_number) values('StB', 4.0) ON CONFLICT DO NOT
 INSERT INTO expansion (name, patch_number) values('Hw', 3.0) ON CONFLICT DO NOTHING;
 INSERT INTO expansion (name, patch_number) values('ARR', 2.0) ON CONFLICT DO NOTHING;
 
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
 CREATE INDEX IF NOT EXISTS name_trgm_lower_idx ON gamerscape_images USING gin (LOWER(name) gin_trgm_ops);
