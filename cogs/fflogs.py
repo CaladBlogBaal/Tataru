@@ -754,6 +754,49 @@ class FFlogs(commands.Cog):
 
             await ctx.send(check)
 
+    @commands.is_owner()
+    @commands.command(aliases=["swd"])
+    async def setup_worlds_dc(self, ctx):
+        """Adds data centers and their respective worlds to the database"""
+        token = await self.api.get_bearer_token()
+        query = """
+                query {
+                  worldData{
+                    regions{
+                      compactName
+                      servers {
+                        data {
+                          name
+                        }
+                      }
+                
+                    }
+                  }
+                
+                }
+        """
+        data_centres = await self.bot.fetch("https://xivapi.com/servers/dc")
+        data = await self.api.call_fflogs_api(query=query, variables="", token=token)
+        data = data["data"]["worldData"]["regions"]
+        # dumb way to do this but doesn't really matter
+        async with ctx.acquire():
+            for region in data:
+                cm = region["compactName"].lower()
+                for server in region["servers"]["data"]:
+                    world = server["name"]
+                    dc = None
+
+                    for key in data_centres:
+                        if server["name"] in data_centres[key]:
+                            dc = key
+                            await ctx.db.execute("""INSERT INTO data_center (name, region) 
+                                                    VALUES ($1, $2) ON CONFLICT DO NOTHING""", key, cm)
+                    await ctx.db.execute(
+                        "INSERT INTO world (name, region, dc_name) values ($1,$2,$3) ON CONFLICT DO NOTHING", world,
+                        cm, dc)
+
+        await ctx.reply("Finished.")
+
 
 def setup(bot):
     bot.add_cog(FFlogs(bot))

@@ -120,7 +120,7 @@ Sub Command and Aliases | Description | Example Usage
    and place it in the config directory
    <br><br>
 6. Upon starting the bot by running the main.py file you will finally need to run the add_zones command to 
-   setup the fflogs cog, and run the add_images to setup the gamerscape cog.
+   setup the fflogs cog, and run the add_images to setup the gamerscape cog then, setup_worlds_dc to have the bot save lodestone users.
    <br><br>
 7. Optionally your preferred method of serving images locally with http/https. Note if you choose not to `gis glam random [sub command]` will not function as intended, depending on how you structure your directories you'll need to modify some code you can opt to use the tree structure I have [here](https://pastebin.com/EHD4Z6Rc)
 ## Requirements<br>
