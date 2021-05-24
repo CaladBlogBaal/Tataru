@@ -44,10 +44,12 @@ class LodeStone(commands.Cog):
             if not data:
                 return await ctx.send("Invalid world was passed.")
 
+            world = data["name"]
+
             results = await self.bot.pyxivapi.character_search(world=world, forename=forename, surname=surname)
 
             if not results["Results"]:
-                return await ctx.send("Invalid character nane.")
+                return await ctx.send("Invalid character name.")
 
             character_id = results["Results"][0]["ID"]
             results = await self.bot.pyxivapi.character_by_id(lodestone_id=character_id, extended=True)
@@ -56,7 +58,7 @@ class LodeStone(commands.Cog):
             INSERT INTO lodestone_user (user_id, first_name, second_name, world_name, region, lodestone_id) 
             VALUES ($1,$2,$3,$4,$5,$6) ON CONFLICT (user_id) 
             DO UPDATE SET (first_name, second_name, world_name, region, lodestone_id) = ($2,$3,$4,$5,$6)
-            """, ctx.author.id, forename, surname, world, data["region"], character_id)
+            """, ctx.author.id, forename, surname, data["name"], data["region"], character_id)
 
             name = results["Character"]["Name"]
             avatar = results["Character"]["Avatar"]
