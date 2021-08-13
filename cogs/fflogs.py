@@ -660,11 +660,11 @@ class FFlogs(commands.Cog):
                                              min_b, expansion_name, zone["brackets"]["max"])
 
                         for encounter in zone["encounters"]:
-                            await ctx.db.execute("""INSERT INTO encounter (id,name,expansion_name)
-                                                    VALUES ($1,$2,$3)
+                            await ctx.db.execute("""INSERT INTO encounter (id,name,expansion_name, zone_id)
+                                                    VALUES ($1,$2,$3,$4)
                                                     ON CONFLICT (id) DO UPDATE 
-                                                    SET id = $1, name = $2, expansion_name = $3""",
-                                                 encounter["id"], encounter["name"], expansion_name)
+                                                    SET id = $1, name = $2, expansion_name = $3, zone_id = $4""",
+                                                 encounter["id"], encounter["name"], expansion_name, zone["id"])
 
             await ctx.send("successfully added/updated zones and encounters :white_check_mark:")
 
