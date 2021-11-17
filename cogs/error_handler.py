@@ -45,6 +45,8 @@ class CommandErrorHandler(commands.Cog):
 
                          commands.DisabledCommand, commands.BadArgument, commands.BadUnionArgument,
 
+                         commands.UnexpectedQuoteError,
+
                          RequestFailed, ArgumentParsingError, XIVAPIForbidden, CharacterNotFound,
 
                          ParsesNotFound)
@@ -70,6 +72,9 @@ class CommandErrorHandler(commands.Cog):
         try:
 
             if not isinstance(error, accounted_for):
+
+                await ctx.send(f"The command `{ctx.command.name}` has ran into an unexpected error, "
+                               f"the bot owner has been notified.", delete_after=8)
 
                 await owner.send("```Python\n" + error_messsage + "```")
 
