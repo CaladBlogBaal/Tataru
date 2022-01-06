@@ -17,7 +17,8 @@ SCHOLAR = PartialEmoji(animated=False, name="scholar", id=733771591342620762)
 GNB = PartialEmoji(animated=False, name="gunbreaker", id=740621571680501861)
 PALADIN = PartialEmoji(animated=False, name="paladin", id=740620986298269699)
 DANCER = PartialEmoji(animated=False, name="dancer", id=740621570157838387)
-# SAGE = PartialEmoji(animated=False, name="sage", id=0)
+SAGE = PartialEmoji(animated=False, name="sage", id=928765048120291399)
+REAPER = PartialEmoji(animated=False, name="reaper", id=928765162687725679)
 
 ICONS = {BLACKMAGE.name: BLACKMAGE,
          ASTROLOGIAN.name: ASTROLOGIAN,
@@ -35,4 +36,6 @@ ICONS = {BLACKMAGE.name: BLACKMAGE,
          SCHOLAR.name: SCHOLAR,
          GNB.name: GNB,
          PALADIN.name: PALADIN,
-         DANCER.name: DANCER}
+         DANCER.name: DANCER,
+         SAGE.name: SAGE,
+         REAPER.name: REAPER}
